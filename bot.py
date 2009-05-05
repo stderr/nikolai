@@ -52,7 +52,7 @@ class Bot(object):
         """
         import types, commands
        
-        return [v for k,v in commands.__dict__.items() if type(v) is types.FunctionType]
+        return [v for k,v in commands.__dict__.items() if type(v) is types.FunctionType and k.startswith(settings.COMMAND_PREFIX)]
         
 
 if __name__ == '__main__':

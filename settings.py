@@ -8,3 +8,8 @@ CHANNELS = [
 	]
 
 GREETING = 'hurr'
+
+# All relevant commands that you want processed should start with this string
+# Contained within the commands module
+# Yea, MUDs and all that.  I've been a nerd for a while
+COMMAND_PREFIX = 'do_'
