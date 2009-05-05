@@ -13,3 +13,11 @@ GREETING = 'hurr'
 # Contained within the commands module
 # Yea, MUDs and all that.  I've been a nerd for a while
 COMMAND_PREFIX = 'do_'
+
+# Local settings override
+try:
+    from local_settings import *
+except ImportError:
+    pass
+
+

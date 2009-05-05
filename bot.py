@@ -44,7 +44,7 @@ class Bot(object):
         """
         Join a channel
         """
-        self.irc.send("JOIN %s\r\n" % (channel,))
+        self.irc.send("JOIN %s %s\r\n" % (channel,password))
     
     def _get_commands(self):
         """
