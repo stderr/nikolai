@@ -1,37 +1,9 @@
 import socket
 import settings
-import re
+import types
+import commands
+from tokenizer import Data
 
-class Data:
-    def __init__(self, raw_data):
-        self.raw = raw_data
-
-        if re.search('^:(.+)!(.+)@(.+) (.+) (.+) :(.+)$', raw_data):
-            m = re.search('^:(.+)!(.+)@(.+) (.+) (.+) :(.+)$', raw_data)
-            self.nick = m.group(1)
-            self.username = m.group(2)
-            self.host = m.group(3)
-            self.type = m.group(4)
-            self.channel = m.group(5)
-            self.message = m.group(6)
-        
-        elif re.search('^PING :(.*)$', raw_data):
-            m = re.search('^PING :(.*)$', raw_data)
-            self.host = m.group(1)
-            self.type = 'PING'
-
-        elif re.search('^:(.+) ([0-9]+) (.+)$', raw_data):
-            m = re.search('^:(.+) ([0-9]+) (.+)$', raw_data)
-            self.host = m.group(1)
-            self.type = 'SERVMSG'
-            self.code = m.group(2)
-            self.message = m.group(3)
-
-        else:
-            self.type = 'OTHER'
-
-    def __repr__(self):
-        return self.raw
 
 
 class Bot(object):
@@ -40,6 +12,10 @@ class Bot(object):
         self.greet = args.get('greet', True)
         
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        self.commands = self._get_commands()
+
+        self.masters = {}
 
 
         
@@ -67,8 +43,8 @@ class Bot(object):
             data = Data(self.irc.recv(4096))
 
             if data.type == "PRIVMSG":
-               for command in self._get_commands():
-                   command(self, data.message)
+               for command in self.commands:
+                   command(self, data)
             
             elif data.type == "PING":
                 self._send("PONG")
@@ -77,7 +53,7 @@ class Bot(object):
 
     def _send(self, data):
         """
-        Sends data to the server
+        Sends data to the server with a printout.
         """
         self.irc.send(data)
         print '>>> %s' % data
@@ -98,9 +74,15 @@ class Bot(object):
         """
         Get all commands to respond to
         """
-        import types, commands
        
         return [v for k,v in commands.__dict__.items() if type(v) is types.FunctionType and k.startswith(settings.COMMAND_PREFIX)]
+
+    def _reload_commands(self):
+        """
+        Reloads the commands to respond to.
+        """
+        reload(commands)
+        self.commands = self._get_commands()
         
 
 if __name__ == '__main__':

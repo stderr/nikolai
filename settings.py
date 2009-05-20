@@ -1,10 +1,12 @@
-HOST = 'irc.freenode.net'
+HOST = 'irc.adelais.net'
 PORT = 6667
 BOTNAME = 'hurrdurr'
 
+PASSWORD = 'password'
+
 # (channel name, password [optional])
 CHANNELS = [
-	('#reno.rb', ''),
+	('#omgabot', ''),
 	]
 
 GREETING = 'hurr'
