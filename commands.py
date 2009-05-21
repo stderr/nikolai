@@ -49,9 +49,11 @@ def do_help(bot, data):
         Provides a list of commands or help for a specific command
         [ if you don't want to incur runtime errors, keep this function at the bottom of the module ]
     """
+    verbose_help = ""
+    
     bot._msg(data.reply, "List of commands:")
     
     for k,v in globals().items():
-        if k.startswith('do_'):
+        if k.startswith(settings.COMMAND_PREFIX):
             bot._msg(data.reply, "%s: %s" % (k[3:], v.__doc__))
         
