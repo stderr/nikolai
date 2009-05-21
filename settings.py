@@ -15,6 +15,7 @@ GREETING = 'hurr'
 # Contained within the commands module
 # Yea, MUDs and all that.  I've been a nerd for a while
 COMMAND_PREFIX = 'do_'
+COMMAND_TOKEN = '@'
 
 # Local settings override
 try:
