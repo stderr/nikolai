@@ -1,4 +1,6 @@
 import settings
+import urllib
+import simplejson as json
 
 def ident(bot, data):
     """
@@ -33,12 +35,16 @@ def do_reload_commands(bot, data):
             bot._reload_commands()
             bot._msg(data.reply, 'Commands reloaded')
         else:
-            bot._msg(data.reply, 'You are not authorized to preform that operation')
+            bot._msg(data.reply, 'You are not authorized to perform that operation')
 
 def do_google(bot, data):
     if data.has_key('google'):
         if data.args:
-            pass
+            url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%(term)s" % { 'term' : urllib.quote(data.args) }
+            response = json.load(urllib.urlopen(url))
+            bot._msg(data.reply, "Total Results: %(total)s" % { 'total' : response['responseData']['cursor']['estimatedResultCount']) })
+            bot._msg(data.reply, response['responseData']['results'][0]['url'])
+            
         else:
             pass
 
