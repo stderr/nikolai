@@ -35,6 +35,13 @@ def do_reload_commands(bot, data):
         else:
             bot._msg(data.reply, 'You are not authorized to preform that operation')
 
+def do_google(bot, data):
+    if data.has_key('google'):
+        if data.args:
+            pass
+        else:
+            pass
+
 def do_hello(bot, data):
     if data.has_key('hello'):
         bot._msg(data.reply, 'Sup, %s.' % data.nick)
