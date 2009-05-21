@@ -4,8 +4,6 @@ import types
 import commands
 from tokenizer import Data
 
-
-
 class Bot(object):
     def __init__(self, **args):
         self.autojoin = args.get('autojoin', True)
@@ -43,9 +41,12 @@ class Bot(object):
             data = Data(self.irc.recv(4096))
 
             if data.type == "PRIVMSG":
-               for command in self.commands:
-                   command(self, data)
-            
+                for command in self.commands:
+                    try:
+                        command(self, data)
+                    except:
+                        print 'Failed to execute %s' % command
+
             elif data.type == "PING":
                 self._send("PONG")
 

@@ -1,3 +1,6 @@
+import re
+from settings import BOTNAME
+
 class Data(object):
     def __init__(self, raw_data):
         self.raw = raw_data
@@ -10,7 +13,17 @@ class Data(object):
             self.type = m.group(4)
             self.channel = m.group(5)
             self.message = m.group(6)
-        
+
+            if raw_data.find(BOTNAME):
+                self.addressed = True
+            else:
+                self.addressed = False
+
+            if self.channel.find("#") != -1:
+                self.reply = self.channel
+            else:
+                self.reply = self.nick
+
         elif re.search('^PING :(.*)$', raw_data):
             m = re.search('^PING :(.*)$', raw_data)
             self.host = m.group(1)
