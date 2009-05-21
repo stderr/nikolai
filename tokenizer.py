@@ -1,3 +1,4 @@
+import settings
 import re
 from settings import BOTNAME
 
@@ -42,3 +43,14 @@ class Data(object):
     def __repr__(self):
         return self.raw
 
+    def has_key(self, key):
+        """
+        Returns the arguments for a given key if self has the key.
+        """
+        if not self.addressed:
+            key = settings.COMMAND_TOKEN + key
+
+        f = self.message.find(key)
+        if f != -1:
+            self.args = self.message[f+len(key)+1:]
+            return True
