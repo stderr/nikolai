@@ -10,9 +10,6 @@ def ident(bot, data):
     except:
         return False
 
-def do_help(bot, data):
-    """Provides a list of commands or help for a specific command"""
-    pass
 
 def do_ident(bot, data):
     """
@@ -45,3 +42,16 @@ def do_hello(bot, data):
     if data.addressed:
         if data.message.find('hello') != -1:
             bot._msg(data.reply, 'Sup, %s.' % data.nick)
+            
+
+def do_help(bot, data):
+    """
+        Provides a list of commands or help for a specific command
+        [ if you don't want to incur runtime errors, keep this function at the bottom of the module ]
+    """
+    bot._msg(data.reply, "List of commands:")
+    
+    for k,v in globals().items():
+        if k.startswith('do_'):
+            bot._msg(data.reply, "%s: %s" % (k[3:], v.__doc__))
+        
