@@ -1,91 +1,69 @@
 import socket
+import select
 import settings
-import types
-import commands
-from tokenizer import Data
-
+import functions
+ 
 class Bot(object):
-    def __init__(self, **args):
-        self.autojoin = args.get('autojoin', True)
-        self.greet = args.get('greet', True)
-        
-        self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        self.commands = self._get_commands()
-
+    def __init__(self):
+        self.sockets = []
+        self.nicks = {} #Replace this with a get_nicks() method
+        self.commands = self.load_plugins()
         self.masters = {}
-
-
-        
+        self.password = settings.PASSWORD
+        self.command_token = settings.COMMAND_TOKEN
+ 
     def connect(self):
-        """ 
-            Connects to the specified host in settings.py and, optionally, joins all channels
-        """
-        
-        self.irc.connect((settings.HOST, settings.PORT))
-        
-        print self.irc.recv(4096)
-        
-        self.irc.send("NICK %s\r\n" % (settings.BOTNAME,))
-        self.irc.send("USER py py py py py bot\r\n")
-        
-        if self.autojoin:
-            for channel in settings.CHANNELS:
-                self._join(channel[0])
-        
-        if self.greet:
-            for channel in settings.CHANNELS:
-                self._msg(channel[0], settings.GREETING)
-        
-        while True:
-            data = Data(self.irc.recv(4096))
-
-            if data.type == "PRIVMSG":
-                for command in self.commands:
-                    try:
-                        command(self, data)
-                    except:
-                        print 'Failed to execute %s' % command
-
-            elif data.type == "PING":
-                self._send("PONG")
-
-            print data
-
-    def _send(self, data):
-        """
-        Sends data to the server with a printout.
-        """
-        self.irc.send(data)
-        print '>>> %s' % data
-    
-    def _msg(self, channel, text):
-        """ 
-        Channel message
-        """
-        self._send("PRIVMSG %s :%s\r\n" % (channel, text))
-    
-    def _join(self, channel, password=''):
-        """
-        Join a channel
-        """
-        self._send("JOIN %s %s\r\n" % (channel,password))
-    
-    def _get_commands(self):
-        """
-        Get all commands to respond to
-        """
-       
-        return [v for k,v in commands.__dict__.items() if type(v) is types.FunctionType and k.startswith(settings.COMMAND_PREFIX)]
-
-    def _reload_commands(self):
-        """
-        Reloads the commands to respond to.
-        """
-        reload(commands)
-        self.commands = self._get_commands()
-        
-
+        for network in settings.networks:
+            sock = socket.socket()
+            try:
+                port = network['port']
+            except:
+                port = 6667
+            sock.connect((network['host'], port))
+ 
+            try:
+                nick = network['nick']
+            except:
+                nick = settings.defaultNick
+            self.handle_output(sock, 'NICK %s\r\n' % nick)
+            #Should try altNick is user is in use.
+            self.nicks[id(sock)] = nick #Replace this with get_nick()
+ 
+            try:
+                user = network['user']
+            except:
+                user = settings.defaultUser
+            self.handle_output(sock, 'USER %s\r\n' % user)
+ 
+            for channel in network['channels']:
+                self.handle_output(sock, 'JOIN %s %s\r\n' % (channel[0], channel[1]))
+ 
+            self.sockets.append(sock)
+ 
+        while 1:
+            read, write, exception = select.select(self.sockets,[],[])
+            for sock in read:
+                #try:
+                data = sock.recv(4096)
+                self.handle_input(sock, data)
+                #except:
+                #    print 'Something went wrong'
+ 
+    def handle_input(self, sock, data):
+        functions.handle_input(self, sock, data)
+ 
+    def handle_output(self, sock, data):
+        functions.handle_output(self, sock, data)
+ 
+    def load_plugins(self):
+        return functions.load_plugins(self)
+ 
+    def reload_bot(self):
+        reload(functions)
+ 
+ 
+ 
+ 
 if __name__ == '__main__':
     bot = Bot()
     bot.connect()
