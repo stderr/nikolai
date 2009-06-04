@@ -1,28 +1,39 @@
+"""
+Core usability plugins
+"""
 import urllib
 try:
-   import simplejson as json
-except:
+    import simplejson as json
+except ImportError:
     print 'Failed to import simplejson'
+import settings
  
  
 command_prefix = 'do_'
  
 def get_commands():
-    return [v for k,v in globals().items() if k.startswith(command_prefix)]
+    """
+    return all commands in the current plugin that start with the command prefix
+    """
+    return [v for k, v in globals().items() if k.startswith(command_prefix)]
  
 def do_google(data):
+    """
+    """
     if data.has_key('google'):
         if data.addressed:
             if data.args:
-                url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%(term)s" % { 'term' : urllib.quote(data.args) }
+                url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%(term)s" %  { 'term' : urllib.quote(data.args) }
                 response = json.load(urllib.urlopen(url))
                 return data.reply("Total Results: %(total)s" % { 'total' : response['responseData']['cursor']['estimatedResultCount'] },
-                                   (response['responseData']['results'][0]['url']))
+                                (response['responseData']['results'][0]['url']))
  
 def do_hello(data):
+    """
+    """
     if data.has_key('hello'):
         if data.addressed:
-           return data.reply('Sup, %s.' % data.nick)
+            return data.reply('Sup, %s.' % data.nick)
  
 def do_help(data):
     """
@@ -35,6 +46,6 @@ def do_help(data):
         else:
             bot._msg(data.reply, "List of commands:")
  
-            for k,v in globals().items():
+            for k, v in globals().items():
                 if k.startswith(settings.COMMAND_PREFIX):
                     bot._msg(data.reply, "%s: %s" % (k[3:], v.__doc__))
