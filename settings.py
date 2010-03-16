@@ -6,7 +6,7 @@ defaultUser = 'py py py py py bot'
  
 #Networks must have 'host' and 'channels'. 'nick' and 'user' are optional
 networks = [
-    {'host':'irc.lolutah.com', 'channels':(('#beefysnax','interp01'),)},
+    {'host':'irc.lolutah.com', 'channels':(('#beefysnax','******'),)},
     ]
  
 #Bot settings go here.
